@@ -18,22 +18,30 @@ h1{
 }
 
 #wheel{
-    width:250px;
-    height:250px;
+    width:280px;
+    height:280px;
     border-radius:50%;
     border:8px solid #333;
     margin:20px auto;
     transition:transform 4s ease-out;
     background:
     conic-gradient(
-        red 0deg 45deg,
-        orange 45deg 90deg,
-        yellow 90deg 135deg,
-        green 135deg 180deg,
-        blue 180deg 225deg,
-        indigo 225deg 270deg,
-        violet 270deg 315deg,
-        pink 315deg 360deg
+        #4CAF50 0deg 22.5deg,
+        #2196F3 22.5deg 45deg,
+        #FFC107 45deg 67.5deg,
+        #FF5722 67.5deg 90deg,
+        #9C27B0 90deg 112.5deg,
+        #E91E63 112.5deg 135deg,
+        #00BCD4 135deg 157.5deg,
+        #8BC34A 157.5deg 180deg,
+        #3F51B5 180deg 202.5deg,
+        #FF9800 202.5deg 225deg,
+        #F44336 225deg 247.5deg,
+        #795548 247.5deg 270deg,
+        #4CAF50 270deg 292.5deg,
+        #2196F3 292.5deg 315deg,
+        #FFC107 315deg 337.5deg,
+        #FF5722 337.5deg 360deg
     );
 }
 
@@ -55,7 +63,7 @@ button{
 
 input{
     padding:10px;
-    font-size:16px;
+    font-size:18px;
     width:60px;
     text-align:center;
 }
@@ -66,34 +74,31 @@ select{
 }
 
 #puzzle{
-    font-size:36px;
+    font-size:40px;
     letter-spacing:8px;
-    margin:20px;
+    margin:25px;
     font-weight:bold;
 }
 
 #message{
     font-size:20px;
-    color:green;
+    min-height:40px;
     margin:15px;
-    min-height:30px;
+    color:#006400;
 }
 
 #spinValue{
     color:#d32f2f;
 }
 
-#playerScores{
-    margin:20px;
-}
-
 .scoreCard{
-    margin:5px;
+    padding:5px;
+    font-size:18px;
 }
 
 .current{
-    color:#d32f2f;
     font-weight:bold;
+    color:#d32f2f;
 }
 
 .hidden{
@@ -136,10 +141,7 @@ select{
 
     <div id="puzzle"></div>
 
-    <input type="text"
-           id="guess"
-           maxlength="1"
-           placeholder="A">
+    <input type="text" id="guess" maxlength="1" placeholder="A">
 
     <button onclick="guessLetter()">Guess Letter</button>
 
@@ -149,7 +151,9 @@ select{
 
 <script>
 
-// Science Terms
+// ==========================
+// SCIENCE WORDS
+// ==========================
 const scienceWords = [
     "PHOTOSYNTHESIS",
     "ATOM",
@@ -173,26 +177,38 @@ const scienceWords = [
     "GENETICS"
 ];
 
-// Wheel Values
+// ==========================
+// WHEEL SPACES
+// ==========================
 const wheelValues = [
-    100,
-    200,
-    300,
-    400,
-    500,
-    600,
-    700,
-    800
+    "$100",
+    "$200",
+    "$300",
+    "$400",
+    "$500",
+    "$600",
+    "$700",
+    "$800",
+    "$1000",
+    "🍬 CANDY",
+    "💥 BANKRUPT",
+    "$500",
+    "$300",
+    "$700",
+    "🍬 CANDY",
+    "💥 BANKRUPT"
 ];
-
-let currentWord = "";
-let guessedLetters = [];
-let currentSpin = 0;
 
 let players = [];
 let currentPlayerIndex = 0;
 
-// Setup Players
+let currentWord = "";
+let guessedLetters = [];
+let currentSpin = null;
+
+// ==========================
+// SETUP PLAYERS
+// ==========================
 function setupPlayers(){
 
     const count =
@@ -200,38 +216,44 @@ function setupPlayers(){
 
     players = [];
 
-    for(let i = 1; i <= count; i++){
+    for(let i=1;i<=count;i++){
 
         players.push({
-            name: "Player " + i,
-            score: 0
+            name:"Player " + i,
+            score:0,
+            candy:0
         });
-
     }
 
-    currentPlayerIndex = 0;
+    document.getElementById("setupScreen")
+        .classList.add("hidden");
 
-    document.getElementById("setupScreen").classList.add("hidden");
-    document.getElementById("gameArea").classList.remove("hidden");
+    document.getElementById("gameArea")
+        .classList.remove("hidden");
+
+    currentPlayerIndex = 0;
 
     updateScoreBoard();
     startGame();
 }
 
-// Start New Puzzle
+// ==========================
+// START GAME
+// ==========================
 function startGame(){
 
     currentWord =
-        scienceWords[Math.floor(Math.random() * scienceWords.length)];
+        scienceWords[Math.floor(Math.random()*scienceWords.length)];
 
     guessedLetters = [];
+    currentSpin = null;
 
     displayPuzzle();
-
-    document.getElementById("message").innerHTML = "";
 }
 
-// Show Puzzle
+// ==========================
+// DISPLAY PUZZLE
+// ==========================
 function displayPuzzle(){
 
     let display = "";
@@ -244,17 +266,15 @@ function displayPuzzle(){
         else{
             display += "_ ";
         }
-
     }
 
     document.getElementById("puzzle").innerHTML = display;
 
-    // Puzzle solved?
     if(!display.includes("_")){
 
         let winner = players[0];
 
-        players.forEach(player => {
+        players.forEach(player=>{
 
             if(player.score > winner.score){
                 winner = player;
@@ -263,42 +283,46 @@ function displayPuzzle(){
         });
 
         document.getElementById("message").innerHTML =
-            `🏆 Puzzle Solved! ${winner.name} wins with ${winner.score} points!`;
-
+        `🏆 GAME OVER!<br>
+         Winner: ${winner.name}<br>
+         💰 $${winner.score}<br>
+         🍬 Candy: ${winner.candy}`;
     }
 }
 
-// Update Scoreboard
+// ==========================
+// SCOREBOARD
+// ==========================
 function updateScoreBoard(){
 
     let html = "";
 
     players.forEach((player,index)=>{
 
-        if(index === currentPlayerIndex){
-
-            html += `
-            <div class="scoreCard current">
-                👉 ${player.name}: ${player.score}
-            </div>`;
-        }
-        else{
-
-            html += `
-            <div class="scoreCard">
-                ${player.name}: ${player.score}
-            </div>`;
-        }
-
+        html += `
+        <div class="${
+            index === currentPlayerIndex
+            ? 'scoreCard current'
+            : 'scoreCard'
+        }">
+            ${index===currentPlayerIndex ? '👉 ' : ''}
+            ${player.name}
+            | 💰 $${player.score}
+            | 🍬 ${player.candy}
+        </div>`;
     });
 
-    document.getElementById("playerScores").innerHTML = html;
+    document.getElementById("playerScores").innerHTML =
+        html;
 
     document.getElementById("currentPlayer").innerHTML =
-        "Current Turn: " + players[currentPlayerIndex].name;
+        "Current Turn: " +
+        players[currentPlayerIndex].name;
 }
 
-// Next Turn
+// ==========================
+// NEXT PLAYER
+// ==========================
 function nextPlayer(){
 
     currentPlayerIndex++;
@@ -310,39 +334,68 @@ function nextPlayer(){
     updateScoreBoard();
 }
 
-// Spin Wheel
+// ==========================
+// SPIN WHEEL
+// ==========================
 function spinWheel(){
 
-    const wheel = document.getElementById("wheel");
+    const wheel =
+        document.getElementById("wheel");
 
-    let randomRotation =
-        Math.floor(Math.random() * 360) + 1440;
+    const rotation =
+        Math.floor(Math.random()*360) + 1440;
 
     wheel.style.transform =
-        `rotate(${randomRotation}deg)`;
+        `rotate(${rotation}deg)`;
 
     currentSpin =
-        wheelValues[Math.floor(Math.random() * wheelValues.length)];
+        wheelValues[Math.floor(Math.random()*wheelValues.length)];
 
     setTimeout(()=>{
 
         document.getElementById("spinValue").innerHTML =
-            `🎯 Value: ${currentSpin} Points`;
+            `🎯 ${currentSpin}`;
+
+        // BANKRUPT
+        if(currentSpin.includes("BANKRUPT")){
+
+            players[currentPlayerIndex].score = 0;
+
+            document.getElementById("message").innerHTML =
+                `💥 BANKRUPT! ${players[currentPlayerIndex].name}
+                 loses all money!`;
+
+            updateScoreBoard();
+
+            nextPlayer();
+        }
+
+        // CANDY
+        else if(currentSpin.includes("CANDY")){
+
+            players[currentPlayerIndex].candy++;
+
+            document.getElementById("message").innerHTML =
+                `🍬 Candy won! Guess a letter.`;
+
+            updateScoreBoard();
+        }
 
     },4000);
 }
 
-// Guess Letter
+// ==========================
+// GUESS LETTER
+// ==========================
 function guessLetter(){
 
-    let input = document.getElementById("guess");
-
     let letter =
-        input.value.toUpperCase();
+        document.getElementById("guess")
+        .value.toUpperCase();
 
     if(letter === "") return;
 
-    if(currentSpin === 0){
+    if(currentSpin === null){
 
         alert("Spin the wheel first!");
 
@@ -351,7 +404,7 @@ function guessLetter(){
 
     if(guessedLetters.includes(letter)){
 
-        alert("That letter was already guessed!");
+        alert("Letter already guessed.");
 
         return;
     }
@@ -365,17 +418,22 @@ function guessLetter(){
         if(l === letter){
             matches++;
         }
-
     }
 
     if(matches > 0){
 
-        players[currentPlayerIndex].score +=
-            currentSpin * matches;
+        if(typeof currentSpin === "string" &&
+           currentSpin.startsWith("$")){
+
+            let value =
+                parseInt(currentSpin.replace("$",""));
+
+            players[currentPlayerIndex].score +=
+                value * matches;
+        }
 
         document.getElementById("message").innerHTML =
             `✅ Correct! ${matches} letter(s) found.`;
-
     }
     else{
 
@@ -388,13 +446,19 @@ function guessLetter(){
     updateScoreBoard();
     displayPuzzle();
 
-    input.value = "";
+    document.getElementById("guess").value = "";
+
+    currentSpin = null;
+    document.getElementById("spinValue").innerHTML =
+        "Spin Again";
 }
 
-// Allow Enter key
-document.addEventListener("keydown", function(event){
+// ==========================
+// ENTER KEY SUPPORT
+// ==========================
+document.addEventListener("keydown", function(e){
 
-    if(event.key === "Enter"){
+    if(e.key === "Enter"){
         guessLetter();
     }
 
